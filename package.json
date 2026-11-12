@@ -1,0 +1,41 @@
+{
+  "name": "@basalt/core",
+  "version": "0.1.0",
+  "description": "Shared foundation for the Basalt apps: theme, UI kit, settings storage and the GitHub-release self-updater.",
+  "license": "MIT",
+  "author": "Muhammad Ahmad",
+  "repository": "github:muhammadahmad545-code/basalt-core",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/**/*.test.ts"
+  },
+  "dependencies": {
+    "@expo-google-fonts/inter": "^0.4.2"
+  },
+  "peerDependencies": {
+    "expo": ">=58",
+    "expo-application": "*",
+    "expo-file-system": "*",
+    "expo-font": "*",
+    "expo-haptics": "*",
+    "expo-intent-launcher": "*",
+    "expo-sqlite": "*",
+    "lucide-react-native": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-reanimated": "*",
+    "react-native-safe-area-context": "*",
+    "react-native-svg": "*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0",
+    "typescript": "~6.0.3",
+    "@types/react": "~19.3.0"
+  }
+}
