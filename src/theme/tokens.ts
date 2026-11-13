@@ -9,7 +9,11 @@ export interface Palette {
   textMuted: string;
   textFaint: string;
   accent: string;
+  /** Second hue for gradients; falls back to a shifted accent. */
+  accent2: string;
   accentSoft: string;
+  /** Translucent accent for glows and aurora backgrounds. */
+  glow: string;
   onAccent: string;
   success: string;
   warning: string;
@@ -25,6 +29,9 @@ export interface AccentSpec {
   light: string;
   /** Text/icon colour placed on top of the accent. */
   onAccent?: string;
+  /** Optional second hue used in gradients (dark, light). */
+  dark2?: string;
+  light2?: string;
 }
 
 function withAlpha(hex: string, alpha: number): string {
@@ -34,18 +41,22 @@ function withAlpha(hex: string, alpha: number): string {
   return `${hex.slice(0, 7)}${a}`;
 }
 
+export { withAlpha };
+
 export function buildPalette(scheme: ColorScheme, accent: AccentSpec): Palette {
   if (scheme === 'dark') {
     return {
-      bg: '#0B0D10',
-      surface: '#13161B',
-      surfaceRaised: '#1B1F26',
-      border: '#262B34',
-      text: '#F2F4F7',
+      bg: '#07080B',
+      surface: '#101217',
+      surfaceRaised: '#171A21',
+      border: '#232731',
+      text: '#F4F6FA',
       textMuted: '#A3ABB8',
-      textFaint: '#6B7380',
+      textFaint: '#687080',
       accent: accent.dark,
+      accent2: accent.dark2 ?? accent.dark,
       accentSoft: withAlpha(accent.dark, 0.14),
+      glow: withAlpha(accent.dark, 0.35),
       onAccent: accent.onAccent ?? '#06110F',
       success: '#3DD68C',
       warning: '#F5B544',
@@ -63,7 +74,9 @@ export function buildPalette(scheme: ColorScheme, accent: AccentSpec): Palette {
     textMuted: '#55606E',
     textFaint: '#8A94A3',
     accent: accent.light,
+    accent2: accent.light2 ?? accent.light,
     accentSoft: withAlpha(accent.light, 0.1),
+    glow: withAlpha(accent.light, 0.18),
     onAccent: '#FFFFFF',
     success: '#12855A',
     warning: '#A9690A',
@@ -84,7 +97,8 @@ export const fonts = {
 } as const;
 
 export const typography = {
-  display: { fontFamily: fonts.bold, fontSize: 32, lineHeight: 38, letterSpacing: -0.6 },
+  hero: { fontFamily: fonts.bold, fontSize: 40, lineHeight: 46, letterSpacing: -1.2 },
+  display: { fontFamily: fonts.bold, fontSize: 32, lineHeight: 38, letterSpacing: -0.8 },
   title: { fontFamily: fonts.bold, fontSize: 24, lineHeight: 30, letterSpacing: -0.4 },
   heading: { fontFamily: fonts.semibold, fontSize: 18, lineHeight: 24, letterSpacing: -0.2 },
   body: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 22 },

@@ -9,7 +9,9 @@ The shared foundation for the Basalt family of offline-first Android apps. Each 
 | `theme/` | Design tokens (colour, spacing, radius, type), light and dark palettes, per-app accent, `ThemeProvider` with a persisted system/light/dark preference |
 | `ui/` | `Screen`, `Header`, `Text`, `Button`, `IconButton`, `Card`, `ListItem`, `Toggle`, `TextField`, `Chip`, `StatTile`, `SectionTitle`, `ProgressBar`, `SegmentedControl`, `EmptyState`, `Toast`, `ErrorBoundary`, spring-animated `Pressable` |
 | `storage/` | `createSetting()` — typed, persisted settings that React components subscribe to |
-| `updater/` | Self-update from GitHub Releases: check, download, verify, hand to the Android installer |
+| `fx/` | `Aurora` animated background, `Hero`, `Gradient`, `Ring`, `Bars`, `Appear` staggered entrances, `Skeleton`, `FloatingTabBar`, `Onboarding` |
+| `lock/` | `LockGate` biometric lock (import by path; needs `expo-local-authentication`) |
+| `updater/` | Self-update from GitHub Releases: check, download, verify, hand to the Android installer. One shared state per app, so a download survives navigation |
 | `utils/` | Version comparison, byte/duration formatting, user-facing errors |
 
 ## How the updater works
@@ -28,7 +30,7 @@ Android itself refuses an update that is not signed with the same key as the ins
 ```jsonc
 // package.json
 "dependencies": {
-  "@basalt/core": "github:muhammadahmad545-code/basalt-core#v0.2.0"
+  "@basalt/core": "github:muhammadahmad545-code/basalt-core#v0.3.0"
 }
 ```
 

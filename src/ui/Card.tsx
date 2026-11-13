@@ -8,17 +8,28 @@ export interface CardProps extends ViewProps {
   onPress?: () => void;
   padded?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** raised: lifted surface with a soft shadow. glow: accent-tinted border and glow. */
+  variant?: 'default' | 'raised' | 'glow';
 }
 
-export function Card({ onPress, padded = true, style, children, ...rest }: CardProps) {
-  const { colors, radius, spacing } = useTheme();
+export function Card({ onPress, padded = true, style, children, variant = 'default', ...rest }: CardProps) {
+  const { colors, radius, spacing, scheme } = useTheme();
   const base: ViewStyle = {
-    backgroundColor: colors.surface,
+    backgroundColor: variant === 'raised' ? colors.surfaceRaised : colors.surface,
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: variant === 'glow' ? colors.accent : colors.border,
     padding: padded ? spacing.lg : 0,
     overflow: 'hidden',
+    ...(variant !== 'default'
+      ? {
+          shadowColor: variant === 'glow' ? colors.accent : '#000',
+          shadowOpacity: variant === 'glow' ? 0.35 : scheme === 'dark' ? 0.4 : 0.08,
+          shadowRadius: 18,
+          shadowOffset: { width: 0, height: 6 },
+          elevation: variant === 'glow' ? 6 : 4,
+        }
+      : null),
   };
   if (onPress) {
     return (
