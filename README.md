@@ -7,7 +7,7 @@ The shared foundation for the Basalt family of offline-first Android apps. Each 
 | Area | What it provides |
 |---|---|
 | `theme/` | Design tokens (colour, spacing, radius, type), light and dark palettes, per-app accent, `ThemeProvider` with a persisted system/light/dark preference |
-| `ui/` | `Screen`, `Text`, `Button`, `Card`, `ListItem`, `ProgressBar`, `SegmentedControl`, `EmptyState`, `Toast`, `ErrorBoundary`, spring-animated `Pressable` |
+| `ui/` | `Screen`, `Header`, `Text`, `Button`, `IconButton`, `Card`, `ListItem`, `Toggle`, `TextField`, `Chip`, `StatTile`, `SectionTitle`, `ProgressBar`, `SegmentedControl`, `EmptyState`, `Toast`, `ErrorBoundary`, spring-animated `Pressable` |
 | `storage/` | `createSetting()` — typed, persisted settings that React components subscribe to |
 | `updater/` | Self-update from GitHub Releases: check, download, verify, hand to the Android installer |
 | `utils/` | Version comparison, byte/duration formatting, user-facing errors |
@@ -28,7 +28,7 @@ Android itself refuses an update that is not signed with the same key as the ins
 ```jsonc
 // package.json
 "dependencies": {
-  "@basalt/core": "github:muhammadahmad545-code/basalt-core#v0.1.0"
+  "@basalt/core": "github:muhammadahmad545-code/basalt-core#v0.2.0"
 }
 ```
 
