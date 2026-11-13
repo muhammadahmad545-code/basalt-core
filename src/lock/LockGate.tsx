@@ -4,7 +4,7 @@
  */
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Lock } from 'lucide-react-native';
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, StyleSheet, View } from 'react-native';
 import { Aurora } from '../fx/Aurora';
 import type { Setting } from '../storage/settings';
@@ -16,13 +16,16 @@ const RELOCK_AFTER_MS = 30_000;
 
 interface LockApi {
   locked: boolean;
-  /** Call before opening the app's own external screen (scanner, picker, share sheet) so returning does not re-lock. */
-  expectExternal: () => void;
+  /**
+   * Wrap the app's own trip to another screen (scanner, picker, share sheet) so coming back does not
+   * re-lock. The exemption ends when the call settles, so a call that fails early cannot leave it on.
+   */
+  runExternal: <T>(fn: () => Promise<T>) => Promise<T>;
   /** Run once the app is unlocked (immediately if it already is). */
   whenUnlocked: (fn: () => void) => void;
 }
 
-const LockContext = createContext<LockApi>({ locked: false, expectExternal: () => {}, whenUnlocked: (fn) => fn() });
+const LockContext = createContext<LockApi>({ locked: false, runExternal: (fn) => fn(), whenUnlocked: (fn) => fn() });
 export const useLock = () => useContext(LockContext);
 
 export interface LockGateProps {
@@ -39,13 +42,19 @@ export interface LockGateProps {
 export function LockGate({ setting, appName, message, children }: LockGateProps) {
   const { colors, spacing } = useTheme();
   const [enabled] = setting.use();
-  const [locked, setLocked] = useState(() => setting.get());
+  const [locked, setLockedState] = useState(() => setting.get());
   const [hidden, setHidden] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const backgroundedAt = useRef<number | null>(null);
-  const external = useRef(false);
+  const external = useRef(0);
   const busy = useRef(false);
   const pending = useRef<(() => void)[]>([]);
+  // The current lock state for callbacks created in earlier renders (notification listeners etc.).
+  const lockedRef = useRef(locked);
+  const setLocked = useCallback((value: boolean) => {
+    lockedRef.current = value;
+    setLockedState(value);
+  }, []);
 
   const unlock = useCallback(async () => {
     if (busy.current) return;
@@ -54,6 +63,7 @@ export function LockGate({ setting, appName, message, children }: LockGateProps)
     try {
       const result = await LocalAuthentication.authenticateAsync({ promptMessage: `Unlock ${appName}`, disableDeviceFallback: false });
       if (result.success) {
+        backgroundedAt.current = null;
         setLocked(false);
         const queued = pending.current.splice(0);
         queued.forEach((fn) => fn());
@@ -65,7 +75,7 @@ export function LockGate({ setting, appName, message, children }: LockGateProps)
     } finally {
       busy.current = false;
     }
-  }, [appName]);
+  }, [appName, setLocked]);
 
   useEffect(() => {
     if (!enabled) {
@@ -73,7 +83,7 @@ export function LockGate({ setting, appName, message, children }: LockGateProps)
       const queued = pending.current.splice(0);
       queued.forEach((fn) => fn());
     }
-  }, [enabled]);
+  }, [enabled, setLocked]);
 
   useEffect(() => {
     if (locked && enabled) void unlock();
@@ -81,30 +91,40 @@ export function LockGate({ setting, appName, message, children }: LockGateProps)
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
+      // The system unlock prompt itself backgrounds the app; ignore that, or a slow PIN entry re-locks.
+      if (busy.current) return;
       if (state === 'background') {
         backgroundedAt.current = Date.now();
-        if (setting.get() && !external.current) setHidden(true);
+        if (setting.get() && external.current === 0) setHidden(true);
       }
       if (state === 'active') {
         setHidden(false);
         const away = backgroundedAt.current ? Date.now() - backgroundedAt.current : 0;
-        if (setting.get() && !external.current && away > RELOCK_AFTER_MS) setLocked(true);
-        external.current = false;
+        if (setting.get() && external.current === 0 && away > RELOCK_AFTER_MS) setLocked(true);
+        backgroundedAt.current = null;
       }
     });
     return () => sub.remove();
-  }, [setting]);
+  }, [setting, setLocked]);
 
-  const api: LockApi = {
-    locked: enabled && locked,
-    expectExternal: () => {
-      external.current = true;
-    },
-    whenUnlocked: (fn) => {
-      if (!setting.get() || !locked) fn();
+  const runExternal = useCallback(async <T,>(fn: () => Promise<T>): Promise<T> => {
+    external.current++;
+    try {
+      return await fn();
+    } finally {
+      external.current = Math.max(0, external.current - 1);
+    }
+  }, []);
+
+  const whenUnlocked = useCallback(
+    (fn: () => void) => {
+      if (!setting.get() || !lockedRef.current) fn();
       else pending.current.push(fn);
     },
-  };
+    [setting],
+  );
+
+  const api = useMemo<LockApi>(() => ({ locked: enabled && locked, runExternal, whenUnlocked }), [enabled, locked, runExternal, whenUnlocked]);
 
   const cover = enabled && (locked || hidden);
   return (
