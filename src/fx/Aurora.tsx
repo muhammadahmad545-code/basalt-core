@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import type { StyleProp, ViewStyle } from 'react-native';
+import type { LayoutChangeEvent, StyleProp, ViewStyle } from 'react-native';
 import Animated, { Easing, useAnimatedProps, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Defs, LinearGradient, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { useTheme } from '../theme/ThemeProvider';
@@ -21,9 +21,13 @@ export function Aurora({ height = 420, style }: { height?: number; style?: Style
   const b = useAnimatedProps(() => ({ cx: `${82 - t.value * 18}%`, cy: `${18 + t.value * 16}%` }));
   const c = useAnimatedProps(() => ({ cx: `${55 + t.value * 10}%`, cy: `${70 - t.value * 12}%` }));
   const strength = scheme === 'dark' ? 0.55 : 0.35;
+  const [width, setWidth] = useState(0);
+  const onLayout = (e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width);
   return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { height }, style]}>
-      <Svg width="100%" height="100%">
+    <View pointerEvents="none" onLayout={onLayout} style={[StyleSheet.absoluteFill, { height }, style]}>
+      {width > 0 ? (
+      <>
+      <Svg width={width} height={height}>
         <Defs>
           <RadialGradient id="ga" cx="50%" cy="50%" r="50%">
             <Stop offset="0" stopColor={colors.accent} stopOpacity={strength} />
@@ -43,15 +47,17 @@ export function Aurora({ height = 420, style }: { height?: number; style?: Style
         <AnimatedCircle animatedProps={c} r="36%" fill="url(#gc)" />
       </Svg>
       {/* Fade the aurora into the page background so content below stays calm. */}
-      <Svg width="100%" height="45%" style={{ position: 'absolute', bottom: 0 }}>
+      <Svg width={width} height={height * 0.45} style={{ position: 'absolute', bottom: 0 }}>
         <Defs>
           <LinearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor={colors.bg} stopOpacity={0} />
             <Stop offset="1" stopColor={colors.bg} stopOpacity={1} />
           </LinearGradient>
         </Defs>
-        <Rect width="100%" height="100%" fill="url(#fade)" />
+        <Rect width={width} height={height * 0.45} fill="url(#fade)" />
       </Svg>
+      </>
+      ) : null}
     </View>
   );
 }

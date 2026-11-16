@@ -1,6 +1,6 @@
 {
   "name": "@basalt/core",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Shared foundation for the Basalt apps: theme, UI kit, settings storage and the GitHub-release self-updater.",
   "license": "MIT",
   "author": "Muhammad Ahmad",
