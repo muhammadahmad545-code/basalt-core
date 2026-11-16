@@ -3,7 +3,7 @@
  * index, so apps without expo-local-authentication do not bundle it.
  */
 import * as LocalAuthentication from 'expo-local-authentication';
-import { Lock } from 'lucide-react-native';
+import Lock from 'lucide-react-native/icons/lock';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, StyleSheet, View } from 'react-native';
 import { Aurora } from '../fx/Aurora';

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { evaluateRelease } from './github';
+import { evaluateRelease, pickApk } from './github';
 
 const base = {
   tag_name: 'v1.2.0',
@@ -42,4 +42,17 @@ test('sidecar checksum is used when the API has no digest; junk is rejected', ()
   assert.equal(good.status === 'available' && good.update.sha256, 'cd'.repeat(32));
   const bad = evaluateRelease(noDigest, '1.0.0', '<html>not a hash</html>');
   assert.equal(bad.status === 'available' && bad.update.sha256, null);
+});
+
+test('picks the APK built for this phone, in its order of preference', () => {
+  const asset = (name: string) => ({ name, size: 1, browser_download_url: `https://example.test/${name}`, digest: null });
+  const assets = [asset('app-1.2.0-armeabi-v7a.apk'), asset('app-1.2.0-arm64-v8a.apk'), asset('app-1.2.0-x86_64.apk'), asset('app-1.2.0-arm64-v8a.apk.sha256')];
+  assert.equal(pickApk(assets, ['arm64-v8a', 'armeabi-v7a'])?.name, 'app-1.2.0-arm64-v8a.apk');
+  assert.equal(pickApk(assets, ['armeabi-v7a'])?.name, 'app-1.2.0-armeabi-v7a.apk');
+  assert.equal(pickApk(assets, ['x86_64', 'arm64-v8a'])?.name, 'app-1.2.0-x86_64.apk');
+  // A universal APK is the fallback; with neither, there is nothing safe to install.
+  assert.equal(pickApk([asset('app-1.2.0.apk')], ['arm64-v8a'])?.name, 'app-1.2.0.apk');
+  assert.equal(pickApk([asset('app-1.2.0-x86_64.apk')], ['arm64-v8a']), undefined);
+  // Unknown device: first APK, as before.
+  assert.equal(pickApk(assets, [])?.name, 'app-1.2.0-armeabi-v7a.apk');
 });

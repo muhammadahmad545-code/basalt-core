@@ -41,11 +41,26 @@ export type CheckResult =
 
 const HEX64 = /^[0-9a-f]{64}$/;
 
+const KNOWN_ABIS = ['arm64-v8a', 'armeabi-v7a', 'x86_64', 'x86'];
+
+/**
+ * Releases ship one APK per processor type (e.g. app-1.2.0-arm64-v8a.apk). Pick the one this phone
+ * runs best: the first of its supported ABIs that has an APK, else an APK built for all of them.
+ */
+export function pickApk(assets: GithubAsset[], abis: string[]): GithubAsset | undefined {
+  const apks = assets.filter((a) => a.name.toLowerCase().endsWith('.apk'));
+  for (const abi of abis) {
+    const match = apks.find((a) => a.name.toLowerCase().includes(`-${abi.toLowerCase()}.apk`));
+    if (match) return match;
+  }
+  return apks.find((a) => !KNOWN_ABIS.some((abi) => a.name.toLowerCase().includes(`-${abi}.apk`))) ?? (abis.length === 0 ? apks[0] : undefined);
+}
+
 /** Pure: turn a GitHub release payload into an update decision. Exported for tests. */
-export function evaluateRelease(release: GithubRelease, currentVersion: string, sha256FromSidecar?: string | null): CheckResult {
+export function evaluateRelease(release: GithubRelease, currentVersion: string, sha256FromSidecar?: string | null, abis: string[] = []): CheckResult {
   if (release.draft || release.prerelease) return { status: 'up-to-date' };
   if (!isNewer(release.tag_name, currentVersion)) return { status: 'up-to-date' };
-  const apk = release.assets.find((a) => a.name.toLowerCase().endsWith('.apk'));
+  const apk = pickApk(release.assets, abis);
   if (!apk) return { status: 'unavailable', reason: 'no-apk' };
   const fromApi = apk.digest?.toLowerCase().replace(/^sha256:/, '') ?? null;
   const candidate = fromApi ?? sha256FromSidecar?.trim().split(/\s+/)[0]?.toLowerCase() ?? null;
@@ -75,7 +90,7 @@ async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: numbe
 }
 
 /** Ask GitHub whether a newer release exists. Never throws: network problems become `unavailable`. */
-export async function checkForUpdate(source: UpdateSource, currentVersion: string): Promise<CheckResult> {
+export async function checkForUpdate(source: UpdateSource, currentVersion: string, abis: string[] = []): Promise<CheckResult> {
   const url = `https://api.github.com/repos/${source.owner}/${source.repo}/releases/latest`;
   let response: Response;
   try {
@@ -98,7 +113,7 @@ export async function checkForUpdate(source: UpdateSource, currentVersion: strin
   }
 
   let sidecar: string | null = null;
-  const apk = release.assets.find((a) => a.name.toLowerCase().endsWith('.apk'));
+  const apk = pickApk(release.assets, abis);
   if (apk && !apk.digest) {
     const sums = release.assets.find((a) => a.name === `${apk.name}.sha256`);
     if (sums) {
@@ -110,5 +125,5 @@ export async function checkForUpdate(source: UpdateSource, currentVersion: strin
       }
     }
   }
-  return evaluateRelease(release, currentVersion, sidecar);
+  return evaluateRelease(release, currentVersion, sidecar, abis);
 }

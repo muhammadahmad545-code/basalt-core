@@ -1,4 +1,5 @@
 import * as Application from 'expo-application';
+import * as Device from 'expo-device';
 import type { File } from 'expo-file-system';
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { createSetting } from '../storage/settings';
@@ -23,6 +24,15 @@ const lastSeenVersion = createSetting<string | null>('basalt.updater.lastSeenVer
 const AUTO_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
 export const currentVersion = Application.nativeApplicationVersion ?? '0.0.0';
+
+/** Processor types this phone runs, best first (e.g. ["arm64-v8a", "armeabi-v7a"]). */
+function deviceAbis(): string[] {
+  try {
+    return Device.supportedCpuArchitectures ?? [];
+  } catch {
+    return [];
+  }
+}
 
 /*
  * One updater per app process, shared by every screen. A download started in Settings keeps
@@ -57,7 +67,7 @@ const MESSAGES = {
 async function check(source: UpdateSource, manual: boolean): Promise<void> {
   if (state.phase === 'checking' || state.phase === 'downloading') return;
   setState({ phase: 'checking' });
-  const result = await checkForUpdate(source, currentVersion);
+  const result = await checkForUpdate(source, currentVersion, deviceAbis());
   lastCheckAt.set(Date.now());
   if (result.status === 'available') {
     if (!manual && skippedVersion.get() === result.update.version) return setState({ phase: 'idle' });

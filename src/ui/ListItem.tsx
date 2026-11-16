@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react-native';
-import { ChevronRight } from 'lucide-react-native';
+import ChevronRight from 'lucide-react-native/icons/chevron-right';
 import React from 'react';
 import { View } from 'react-native';
 import { useTheme } from '../theme/ThemeProvider';

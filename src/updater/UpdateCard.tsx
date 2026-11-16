@@ -1,4 +1,7 @@
-import { ArrowDownToLine, CheckCircle2, CircleAlert, Sparkles } from 'lucide-react-native';
+import ArrowDownToLine from 'lucide-react-native/icons/arrow-down-to-line';
+import CheckCircle2 from 'lucide-react-native/icons/circle-check';
+import CircleAlert from 'lucide-react-native/icons/circle-exclamation-point';
+import Sparkles from 'lucide-react-native/icons/sparkles';
 import React from 'react';
 import { View } from 'react-native';
 import { useTheme } from '../theme/ThemeProvider';
