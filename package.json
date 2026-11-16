@@ -1,6 +1,6 @@
 {
   "name": "@basalt/core",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Shared foundation for the Basalt apps: theme, UI kit, settings storage and the GitHub-release self-updater.",
   "license": "MIT",
   "author": "Muhammad Ahmad",
@@ -32,7 +32,8 @@
     "react-native-reanimated": "*",
     "react-native-safe-area-context": "*",
     "react-native-svg": "*",
-    "expo-local-authentication": "*"
+    "expo-local-authentication": "*",
+    "expo-router": "*"
   },
   "devDependencies": {
     "tsx": "^4.20.0",

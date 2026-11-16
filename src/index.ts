@@ -35,3 +35,4 @@ export * from './fx/Ring';
 export * from './fx/Skeleton';
 export * from './fx/TabBar';
 export * from './ui/Badge';
+export * from './fx/SlotTabs';
