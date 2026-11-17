@@ -2,6 +2,7 @@ import * as Application from 'expo-application';
 import * as Device from 'expo-device';
 import type { File } from 'expo-file-system';
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
+import { AppState } from 'react-native';
 import { createSetting } from '../storage/settings';
 import { toMessage } from '../utils/errors';
 import { checkForUpdate } from './github';
@@ -21,7 +22,11 @@ const lastCheckAt = createSetting<number>('basalt.updater.lastCheckAt', 0);
 const skippedVersion = createSetting<string | null>('basalt.updater.skipped', null);
 const lastSeenVersion = createSetting<string | null>('basalt.updater.lastSeenVersion', null);
 
-const AUTO_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
+/**
+ * Checked every time the app is opened. Coming back from the background re-checks only after this
+ * long, so switching apps back and forth does not hit GitHub on every switch.
+ */
+const RESUME_RECHECK_MS = 15 * 60 * 1000;
 
 export const currentVersion = Application.nativeApplicationVersion ?? '0.0.0';
 
@@ -42,6 +47,7 @@ let state: UpdaterState = { phase: 'idle' };
 const listeners = new Set<() => void>();
 let abort: AbortController | null = null;
 let autoChecked = false;
+let resumeWatch: { remove: () => void } | null = null;
 let cleaned = false;
 
 function setState(next: UpdaterState | ((s: UpdaterState) => UpdaterState)) {
@@ -118,9 +124,17 @@ export function useUpdater({ source, auto = true }: UseUpdaterOptions) {
         lastSeenVersion.set(currentVersion);
       }
     }
-    if (auto && !autoChecked && Date.now() - lastCheckAt.get() > AUTO_CHECK_INTERVAL_MS) {
+    if (!auto) return;
+    // Every launch checks once, so a new release shows up as soon as the app is opened.
+    if (!autoChecked) {
       autoChecked = true;
       void check({ owner, repo }, false);
+    }
+    // Returning to the app later (it stayed in memory) checks again after a while.
+    if (!resumeWatch) {
+      resumeWatch = AppState.addEventListener('change', (next) => {
+        if (next === 'active' && Date.now() - lastCheckAt.get() > RESUME_RECHECK_MS) void check({ owner, repo }, false);
+      });
     }
   }, [auto, owner, repo]);
 
