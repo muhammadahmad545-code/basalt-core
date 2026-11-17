@@ -29,7 +29,9 @@ export function SlotTabs({ tabs }: { tabs: SlotTab[] }) {
   const items = tabs.map((t) => ({ name: t.href, label: t.label, icon: t.icon }));
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <Slot />
+      <View style={{ flex: 1 }}>
+        <Slot />
+      </View>
       <FloatingTabBar
         items={items}
         state={state}

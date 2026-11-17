@@ -28,13 +28,13 @@ export function TextField({ label, hint, error, multiline, ...rest }: TextFieldP
           typography.body,
           {
             color: colors.text,
-            backgroundColor: colors.surfaceRaised,
+            backgroundColor: colors.fill,
             borderWidth: 1,
-            borderColor: error ? colors.danger : colors.border,
+            borderColor: error ? colors.danger : 'transparent',
             borderRadius: radius.md,
             paddingHorizontal: spacing.md,
             paddingVertical: spacing.md,
-            minHeight: multiline ? 96 : 48,
+            minHeight: multiline ? 96 : 46,
             textAlignVertical: multiline ? 'top' : 'center',
           },
         ]}

@@ -2,7 +2,7 @@ import * as Haptics from 'expo-haptics';
 import React from 'react';
 import { Pressable as RNPressable } from 'react-native';
 import type { PressableProps as RNPressableProps, StyleProp, ViewStyle } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
 
@@ -13,27 +13,30 @@ export interface PressableProps extends Omit<RNPressableProps, 'style'> {
   haptic?: boolean;
 }
 
-/** Pressable with a spring scale and optional light haptic, used by every tappable in the suite. */
-export function Pressable({ style, pressScale = 0.97, haptic = false, onPressIn, onPressOut, onPress, disabled, ...rest }: PressableProps) {
-  const scale = useSharedValue(1);
-  const animated = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+/** Tappable with a short, quiet press response (slight dim and scale), used across the suite. */
+export function Pressable({ style, pressScale = 0.985, haptic = false, onPressIn, onPressOut, onPress, disabled, ...rest }: PressableProps) {
+  const pressed = useSharedValue(0);
+  const animated = useAnimatedStyle(() => ({
+    opacity: 1 - pressed.value * 0.12,
+    transform: [{ scale: 1 - pressed.value * (1 - pressScale) }],
+  }));
   return (
     <AnimatedPressable
       {...rest}
       disabled={disabled}
       onPressIn={(e) => {
-        scale.value = withSpring(pressScale, { damping: 20, stiffness: 400 });
+        pressed.value = withTiming(1, { duration: 80 });
         onPressIn?.(e);
       }}
       onPressOut={(e) => {
-        scale.value = withSpring(1, { damping: 20, stiffness: 400 });
+        pressed.value = withTiming(0, { duration: 140 });
         onPressOut?.(e);
       }}
       onPress={(e) => {
-        if (haptic) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+        if (haptic) Haptics.selectionAsync().catch(() => {});
         onPress?.(e);
       }}
-      style={[style, animated, disabled ? { opacity: 0.45 } : null]}
+      style={[style, animated, disabled ? { opacity: 0.4 } : null]}
     />
   );
 }

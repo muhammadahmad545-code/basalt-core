@@ -14,7 +14,8 @@ export interface ChipProps {
 
 export function Chip({ label, selected = false, onPress, icon: Icon, tone = 'accent' }: ChipProps) {
   const { colors, radius, spacing } = useTheme();
-  const fg = selected ? colors.onAccent : colors[tone === 'accent' ? 'textMuted' : tone];
+  const active = colors[tone];
+  const fg = selected ? colors.onAccent : tone === 'accent' ? colors.text : active;
   return (
     <Pressable
       accessibilityRole={onPress ? 'button' : 'text'}
@@ -28,14 +29,14 @@ export function Chip({ label, selected = false, onPress, icon: Icon, tone = 'acc
         alignItems: 'center',
         gap: 6,
         paddingHorizontal: spacing.md,
-        minHeight: 34,
+        minHeight: 32,
         borderRadius: radius.pill,
         borderWidth: 1,
-        borderColor: selected ? colors[tone] : colors.border,
-        backgroundColor: selected ? colors[tone] : colors.surfaceRaised,
+        borderColor: selected ? active : colors.border,
+        backgroundColor: selected ? active : colors.surface,
       }}
     >
-      {Icon ? <Icon size={14} color={fg} /> : null}
+      {Icon ? <Icon size={14} color={selected ? colors.onAccent : active} strokeWidth={2.2} /> : null}
       <Text variant="label" style={{ color: fg }}>
         {label}
       </Text>

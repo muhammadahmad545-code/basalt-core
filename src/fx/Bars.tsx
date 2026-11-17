@@ -1,6 +1,5 @@
 import React from 'react';
 import { View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme } from '../theme/ThemeProvider';
 import { Text } from '../ui/Text';
 
@@ -21,15 +20,14 @@ export function Bars({ values, labels, height = 120, highlight, accessibilityLab
     <View accessible accessibilityLabel={accessibilityLabel} style={{ gap: spacing.xs }}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', height, gap: 3 }}>
         {values.map((v, i) => (
-          <Animated.View
+          <View
             key={i}
-            entering={FadeIn.delay(i * 18).duration(300)}
             style={{
               flex: 1,
               height: `${Math.max(3, (v / max) * 100)}%`,
-              borderTopLeftRadius: 4,
-              borderTopRightRadius: 4,
-              backgroundColor: i === highlight ? colors.accent : colors.accentSoft,
+              borderTopLeftRadius: 3,
+              borderTopRightRadius: 3,
+              backgroundColor: i === highlight ? colors.accent : colors.glow,
             }}
           />
         ))}

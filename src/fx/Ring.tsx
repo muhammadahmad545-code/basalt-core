@@ -16,7 +16,7 @@ export interface RingProps {
 }
 
 /** Animated gradient progress ring with content in the middle. */
-export function Ring({ progress, size = 120, stroke = 12, children, tone = 'accent' }: RingProps) {
+export function Ring({ progress, size = 120, stroke = 8, children, tone = 'accent' }: RingProps) {
   const { colors } = useTheme();
   const id = `r${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   const r = (size - stroke) / 2;
@@ -24,11 +24,11 @@ export function Ring({ progress, size = 120, stroke = 12, children, tone = 'acce
   const value = useSharedValue(0);
   const clamped = Math.max(0, Math.min(1, Number.isFinite(progress) ? progress : 0));
   useEffect(() => {
-    value.value = withTiming(clamped, { duration: 900, easing: Easing.out(Easing.cubic) });
+    value.value = withTiming(clamped, { duration: 500, easing: Easing.out(Easing.cubic) });
   }, [clamped, value]);
   const props = useAnimatedProps(() => ({ strokeDashoffset: circumference * (1 - value.value) }));
-  const start = tone === 'accent' ? colors.accent : colors[tone];
-  const end = tone === 'accent' ? colors.accent2 : colors[tone];
+  const start = colors[tone];
+  const end = colors[tone];
   return (
     <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: 100, now: Math.round(clamped * 100) }} style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg width={size} height={size} style={{ position: 'absolute', transform: [{ rotate: '-90deg' }] }}>
@@ -38,7 +38,7 @@ export function Ring({ progress, size = 120, stroke = 12, children, tone = 'acce
             <Stop offset="1" stopColor={end} />
           </LinearGradient>
         </Defs>
-        <Circle cx={size / 2} cy={size / 2} r={r} stroke={colors.border} strokeWidth={stroke} fill="none" />
+        <Circle cx={size / 2} cy={size / 2} r={r} stroke={colors.fill} strokeWidth={stroke} fill="none" />
         <AnimatedCircle
           cx={size / 2}
           cy={size / 2}

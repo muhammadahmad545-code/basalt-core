@@ -8,7 +8,7 @@ export interface CardProps extends ViewProps {
   onPress?: () => void;
   padded?: boolean;
   style?: StyleProp<ViewStyle>;
-  /** raised: lifted surface with a soft shadow. glow: accent-tinted border and glow. */
+  /** raised: slightly lifted surface. glow: accent outline for the one thing that needs attention. */
   variant?: 'default' | 'raised' | 'glow';
 }
 
@@ -21,19 +21,13 @@ export function Card({ onPress, padded = true, style, children, variant = 'defau
     borderColor: variant === 'glow' ? colors.accent : colors.border,
     padding: padded ? spacing.lg : 0,
     overflow: 'hidden',
-    ...(variant !== 'default'
-      ? {
-          shadowColor: variant === 'glow' ? colors.accent : '#000',
-          shadowOpacity: variant === 'glow' ? 0.35 : scheme === 'dark' ? 0.4 : 0.08,
-          shadowRadius: 18,
-          shadowOffset: { width: 0, height: 6 },
-          elevation: variant === 'glow' ? 6 : 4,
-        }
+    ...(variant === 'raised' && scheme === 'light'
+      ? { shadowColor: '#0B1220', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 }, elevation: 1 }
       : null),
   };
   if (onPress) {
     return (
-      <Pressable accessibilityRole="button" onPress={onPress} pressScale={0.985} style={[base, style]} {...rest}>
+      <Pressable accessibilityRole="button" onPress={onPress} style={[base, style]} {...rest}>
         {children}
       </Pressable>
     );

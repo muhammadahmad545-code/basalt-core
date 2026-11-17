@@ -2,14 +2,11 @@ import type { LucideIcon } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
 import { FlatList, View, useWindowDimensions } from 'react-native';
 import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
-import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/ThemeProvider';
 import { Button } from '../ui/Button';
 import { Pressable } from '../ui/Pressable';
 import { Text } from '../ui/Text';
-import { Aurora } from './Aurora';
-import { Gradient } from './Gradient';
 
 export interface OnboardingPage {
   icon: LucideIcon;
@@ -33,14 +30,13 @@ export function Onboarding({ pages, onDone, appName }: { pages: OnboardingPage[]
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <Aurora height={520} />
-      <View style={{ paddingTop: insets.top + spacing.md, paddingHorizontal: spacing.lg, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text variant="overline" color="accent">
-          Basalt · {appName}
+      <View style={{ paddingTop: insets.top + spacing.md, paddingHorizontal: spacing.lg, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: insets.top + 48 }}>
+        <Text variant="label" color="textMuted">
+          {appName}
         </Text>
         {!last ? (
-          <Pressable accessibilityRole="button" accessibilityLabel="Skip introduction" hitSlop={12} onPress={onDone}>
-            <Text variant="label" color="textMuted">
+          <Pressable accessibilityRole="button" accessibilityLabel="Skip" hitSlop={12} onPress={onDone}>
+            <Text variant="label" color="accent">
               Skip
             </Text>
           </Pressable>
@@ -55,21 +51,19 @@ export function Onboarding({ pages, onDone, appName }: { pages: OnboardingPage[]
         onScroll={onScroll}
         scrollEventThrottle={16}
         keyExtractor={(p) => p.title}
-        renderItem={({ item, index: i }) => {
+        renderItem={({ item }) => {
           const Icon = item.icon;
           return (
             <View style={{ width, paddingHorizontal: spacing.xl, justifyContent: 'center', gap: spacing.xl }}>
-              <Animated.View entering={ZoomIn.delay(i === 0 ? 150 : 0).springify().damping(14)} style={{ alignSelf: 'flex-start' }}>
-                <Gradient colors={[colors.accent, colors.accent2]} radius={radius.xl} style={{ width: 96, height: 96, alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon size={44} color={colors.onAccent} strokeWidth={2.2} />
-                </Gradient>
-              </Animated.View>
-              <Animated.View entering={FadeIn.delay(i === 0 ? 300 : 0)} style={{ gap: spacing.md }}>
+              <View style={{ width: 64, height: 64, borderRadius: radius.lg, backgroundColor: colors.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={30} color={colors.accent} strokeWidth={1.9} />
+              </View>
+              <View style={{ gap: spacing.md }}>
                 <Text variant="hero">{item.title}</Text>
-                <Text variant="body" color="textMuted" style={{ fontSize: 17, lineHeight: 26 }}>
+                <Text variant="body" color="textMuted" style={{ fontSize: 16, lineHeight: 24 }}>
                   {item.body}
                 </Text>
-              </Animated.View>
+              </View>
             </View>
           );
         }}
@@ -77,7 +71,7 @@ export function Onboarding({ pages, onDone, appName }: { pages: OnboardingPage[]
       <View style={{ paddingHorizontal: spacing.lg, paddingBottom: insets.bottom + spacing.lg, gap: spacing.lg }}>
         <View style={{ flexDirection: 'row', gap: 6, justifyContent: 'center' }} accessibilityLabel={`Page ${index + 1} of ${pages.length}`}>
           {pages.map((p, i) => (
-            <View key={p.title} style={{ height: 8, width: i === index ? 24 : 8, borderRadius: 4, backgroundColor: i === index ? colors.accent : colors.border }} />
+            <View key={p.title} style={{ height: 6, width: i === index ? 18 : 6, borderRadius: 3, backgroundColor: i === index ? colors.accent : colors.border }} />
           ))}
         </View>
         <Button

@@ -11,9 +11,9 @@ export interface SegmentedControlProps<T extends string> {
 }
 
 export function SegmentedControl<T extends string>({ options, value, onChange }: SegmentedControlProps<T>) {
-  const { colors, radius, spacing } = useTheme();
+  const { colors, radius, spacing, scheme } = useTheme();
   return (
-    <View style={{ flexDirection: 'row', backgroundColor: colors.surfaceRaised, borderRadius: radius.md, padding: 4, borderWidth: 1, borderColor: colors.border }}>
+    <View style={{ flexDirection: 'row', backgroundColor: colors.fill, borderRadius: radius.md, padding: 3 }}>
       {options.map((o) => {
         const selected = o.value === value;
         return (
@@ -23,10 +23,18 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
             accessibilityState={{ selected }}
             accessibilityLabel={o.label}
             haptic
+            pressScale={1}
             onPress={() => onChange(o.value)}
-            style={{ flex: 1, paddingVertical: spacing.sm, borderRadius: radius.sm, alignItems: 'center', backgroundColor: selected ? colors.accent : 'transparent' }}
+            style={{
+              flex: 1,
+              paddingVertical: spacing.sm,
+              borderRadius: radius.sm,
+              alignItems: 'center',
+              backgroundColor: selected ? (scheme === 'dark' ? colors.surfaceRaised : colors.surface) : 'transparent',
+              ...(selected && scheme === 'light' ? { shadowColor: '#0B1220', shadowOpacity: 0.08, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 1 } : null),
+            }}
           >
-            <Text variant="label" style={{ color: selected ? colors.onAccent : colors.textMuted }}>
+            <Text variant="label" numberOfLines={1} style={{ color: selected ? colors.text : colors.textMuted, fontFamily: selected ? 'Inter_600SemiBold' : 'Inter_500Medium' }}>
               {o.label}
             </Text>
           </Pressable>

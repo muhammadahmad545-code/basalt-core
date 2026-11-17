@@ -14,47 +14,47 @@ export interface HeaderProps {
 }
 
 export function Header({ title, subtitle, right, onBack }: HeaderProps) {
-  const { colors, spacing, radius } = useTheme();
+  const { colors, spacing } = useTheme();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-      {onBack ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-          hitSlop={8}
-          onPress={onBack}
-          style={{ width: 44, height: 44, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <ArrowLeft size={20} color={colors.text} />
-        </Pressable>
+    <View style={{ gap: spacing.md }}>
+      {onBack || right ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 40 }}>
+          {onBack ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Back" hitSlop={10} onPress={onBack} style={{ width: 40, height: 40, marginLeft: -8, alignItems: 'center', justifyContent: 'center' }}>
+              <ArrowLeft size={22} color={colors.text} />
+            </Pressable>
+          ) : (
+            <View />
+          )}
+          {right ? <View style={{ flexDirection: 'row', gap: spacing.sm }}>{right}</View> : null}
+        </View>
       ) : null}
-      <View style={{ flex: 1 }}>
-        <Text variant="title" numberOfLines={1}>
+      <View style={{ gap: 2 }}>
+        <Text variant="display" accessibilityRole="header" numberOfLines={2}>
           {title}
         </Text>
         {subtitle ? (
-          <Text variant="caption" color="textMuted" numberOfLines={1}>
+          <Text variant="label" color="textMuted" numberOfLines={2}>
             {subtitle}
           </Text>
         ) : null}
       </View>
-      {right}
     </View>
   );
 }
 
-/** Square icon button used in headers. */
-export function IconButton({ icon: Icon, label, onPress, tone = 'text' }: { icon: React.ComponentType<{ size?: number; color?: string }>; label: string; onPress: () => void; tone?: 'text' | 'accent' | 'danger' }) {
-  const { colors, radius } = useTheme();
+/** Round icon button for headers and toolbars. */
+export function IconButton({ icon: Icon, label, onPress, tone = 'text' }: { icon: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>; label: string; onPress: () => void; tone?: 'text' | 'accent' | 'danger' }) {
+  const { colors } = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
-      hitSlop={8}
+      hitSlop={6}
       onPress={onPress}
-      style={{ width: 44, height: 44, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' }}
+      style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: tone === 'danger' ? colors.dangerSoft : colors.fill, alignItems: 'center', justifyContent: 'center' }}
     >
-      <Icon size={20} color={colors[tone]} />
+      <Icon size={19} color={colors[tone]} strokeWidth={2} />
     </Pressable>
   );
 }

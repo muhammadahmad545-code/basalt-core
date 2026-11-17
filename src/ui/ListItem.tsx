@@ -18,20 +18,12 @@ export interface ListItemProps {
 
 export function ListItem({ title, subtitle, icon: Icon, iconTone = 'accent', trailing, onPress, chevron }: ListItemProps) {
   const { colors, spacing, radius } = useTheme();
+  const tint = iconTone === 'danger' ? colors.dangerSoft : iconTone === 'accent' ? colors.accentSoft : colors.fill;
   const body = (
     <>
       {Icon ? (
-        <View
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: radius.md,
-            backgroundColor: iconTone === 'danger' ? colors.dangerSoft : colors.accentSoft,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Icon size={20} color={colors[iconTone]} />
+        <View style={{ width: 36, height: 36, borderRadius: radius.md, backgroundColor: tint, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon size={18} color={colors[iconTone]} strokeWidth={2} />
         </View>
       ) : null}
       <View style={{ flex: 1, gap: 2 }}>
@@ -50,7 +42,7 @@ export function ListItem({ title, subtitle, icon: Icon, iconTone = 'accent', tra
   );
   const style = { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md, minHeight: 56 } as const;
   return onPress ? (
-    <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress} pressScale={0.99} style={style}>
+    <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress} pressScale={1} style={style}>
       {body}
     </Pressable>
   ) : (

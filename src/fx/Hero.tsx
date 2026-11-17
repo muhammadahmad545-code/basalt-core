@@ -1,6 +1,5 @@
 import React from 'react';
 import { View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '../theme/ThemeProvider';
 import { Text } from '../ui/Text';
 
@@ -12,26 +11,23 @@ export interface HeroProps {
   children?: React.ReactNode;
 }
 
-/** Large page title block used at the top of tab screens, over the aurora. */
-export function Hero({ overline, title, subtitle, right, children }: HeroProps) {
+/** Page title for tab screens: a large title with optional actions, no decoration. */
+export function Hero({ title, subtitle, right, children }: HeroProps) {
   const { spacing } = useTheme();
   return (
-    <Animated.View entering={FadeInDown.duration(420)} style={{ gap: spacing.md, paddingTop: spacing.sm }}>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md }}>
-        <View style={{ flex: 1, gap: 2 }}>
-          {overline ? (
-            <Text variant="overline" color="accent">
-              {overline}
-            </Text>
-          ) : null}
-          <Text variant="hero" accessibilityRole="header">
-            {title}
-          </Text>
-          {subtitle ? <Text color="textMuted">{subtitle}</Text> : null}
-        </View>
+    <View style={{ gap: spacing.md, paddingTop: spacing.xs }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 40 }}>
+        <Text variant="hero" accessibilityRole="header" style={{ flex: 1 }} numberOfLines={1}>
+          {title}
+        </Text>
         {right ? <View style={{ flexDirection: 'row', gap: spacing.sm }}>{right}</View> : null}
       </View>
+      {subtitle ? (
+        <Text variant="body" color="textMuted" style={{ marginTop: -spacing.sm }}>
+          {subtitle}
+        </Text>
+      ) : null}
       {children}
-    </Animated.View>
+    </View>
   );
 }

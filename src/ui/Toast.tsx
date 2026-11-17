@@ -35,16 +35,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={show}>
       {children}
-      <View pointerEvents="none" style={{ position: 'absolute', left: spacing.lg, right: spacing.lg, bottom: insets.bottom + spacing.xl, alignItems: 'center' }}>
+      <View pointerEvents="none" style={{ position: 'absolute', left: spacing.lg, right: spacing.lg, bottom: insets.bottom + 72, alignItems: 'center' }}>
         {toast ? (
           <Animated.View
             key={toast.id}
-            entering={FadeInDown.duration(180)}
-            exiting={FadeOutDown.duration(180)}
+            entering={FadeInDown.duration(160)}
+            exiting={FadeOutDown.duration(140)}
             accessibilityLiveRegion="polite"
-            style={{ backgroundColor: colors.surfaceRaised, borderColor: border, borderWidth: 1, borderRadius: radius.lg, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, maxWidth: 480 }}
+            style={{ backgroundColor: colors.text, borderColor: border === colors.border ? colors.text : border, borderWidth: 1, borderRadius: radius.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, maxWidth: 480 }}
           >
-            <Text variant="label" align="center">
+            <Text variant="label" align="center" style={{ color: colors.bg }}>
               {toast.message}
             </Text>
           </Animated.View>
